@@ -16,7 +16,7 @@ class PaymentRequestSeeder extends Seeder
     public function run()
     {
         PaymentRequest::factory()
-        ->count(20)
+        ->count(2000)
         ->create();
     }
 }

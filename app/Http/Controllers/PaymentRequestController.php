@@ -14,7 +14,8 @@ class PaymentRequestController extends Controller
      */
     public function index()
     {
-        //
+        $payments = PaymentRequest::paginate(100);
+        return view('payments.index', compact('payments'));
     }
 
     /**
