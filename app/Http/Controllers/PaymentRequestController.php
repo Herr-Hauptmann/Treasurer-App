@@ -7,14 +7,16 @@ use Illuminate\Http\Request;
 
 class PaymentRequestController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function index()
+    public function index(Request $request)
     {
-        $payments = PaymentRequest::paginate(100);
+        $payments = null;
+        if ($request->search != null)
+        {
+            $payments = PaymentRequest::where('description','LIKE',"%{$request->search}%")
+            ->orWhere('project','LIKE',"%{$request->search}%")
+            ->paginate(100);
+        }
+        else $payments = PaymentRequest::paginate(100);
         return view('payments.index', compact('payments'));
     }
 
