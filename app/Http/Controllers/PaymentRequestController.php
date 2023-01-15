@@ -46,7 +46,7 @@ class PaymentRequestController extends Controller
             //Kreiranje naziva slike
             $naziv = 'racun'.'_'.time().'.'.$ekstenzija;
             //Uplad slike
-            $path = $request->file('image')->storeAs('public/img/racuni/', $naziv);
+            $path = $request->file('image')->storeAs('public/img/racuni', $naziv);
             $path = 'storage'.trim($path, "public");   
             //U bazi pamtimo samo ime
             $validiranZahtjev['image'] = $path;
@@ -94,15 +94,15 @@ class PaymentRequestController extends Controller
             //Kreiranje naziva slike
             $naziv = 'racun'.'_'.time().'.'.$ekstenzija;
             //Uplad slike
-            $path = $request->file('image')->storeAs('public/img/racuni/', $naziv);
+            $path = $request->file('image')->storeAs('public/img/racuni', $naziv);
             $path = 'storage'.trim($path, "public");   
             //U bazi pamtimo samo ime
             $validiranZahtjev['image'] = $path;
 
-               //Brisanje stare fotografije
-               $old_photo=$paymentRequest->image;
-               $old_photo = 'public'.trim($old_photo, "storage");
-               Storage::delete($old_photo);
+            //Brisanje stare fotografije
+            $old_photo=$paymentRequest->image;
+            $old_photo = 'public'.substr($old_photo, strlen('storage'));
+            Storage::delete($old_photo);
         }
         $paymentRequest->update($validiranZahtjev);
         return redirect(route('payment.index'))->with('jsAlert', 'Uspjesno ste izmjenili zahtjev '.$paymentRequest->description.'!');
@@ -118,7 +118,7 @@ class PaymentRequestController extends Controller
     {
         $paymentRequest = PaymentRequest::findOrFail($id);
         $old_photo=$paymentRequest->image;
-        $old_photo = 'public'.trim($old_photo, "storage");
+        $old_photo = 'public'.substr($old_photo, strlen('storage'));
         Storage::delete($old_photo);
         PaymentRequest::destroy($id);
         return redirect(route('payment.index'))->with('jsAlert', 'Uspjesno ste obrisali zahtjev!');
