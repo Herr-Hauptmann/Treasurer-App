@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\PaymentRequest;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class PaymentRequestController extends Controller
 {
@@ -20,25 +21,39 @@ class PaymentRequestController extends Controller
         return view('payments.index', compact('payments'));
     }
 
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
     public function create()
     {
-        //
+        return view("payments.create");
     }
 
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
     public function store(Request $request)
     {
-        //
+        $validiranZahtjev = $request->validate([
+            'description' => 'required|string|min:5|max:255',
+            'project' => 'required|string|min:5|max:255',
+            'person' => 'required|string|min:5|max:255',
+            'reciept_number' => 'required|string|min:2|max:255',
+            'reciept_date' => 'required|date|before_or_equal:'.now()->format('m/d/Y'),
+            'cost' => 'required|min:0',
+            'bank_account_number' => 'required|string|min:2|max:255',
+            'comment' => 'nullable|string|max:256',
+            'image' => 'nullable|image|max:5128',
+        ]);
+
+        if ($request->image){
+            //Obrada slike
+            $ekstenzija = $request->file('image')->getClientOriginalExtension();
+            //Kreiranje naziva slike
+            $naziv = 'racun'.'_'.time().'.'.$ekstenzija;
+            //Uplad slike
+            $path = $request->file('image')->storeAs('public/img/racuni/', $naziv);     
+            //U bazi pamtimo samo ime
+            $validiranZahtjev['image'] = $path;
+        }
+
+        $payment = PaymentRequest::create($validiranZahtjev);
+
+        return redirect(route('payment.index'))->with('jsAlert', 'Uspjesno ste kreirali zahtjev za uplatu!');
     }
 
     /**

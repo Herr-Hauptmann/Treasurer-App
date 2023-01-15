@@ -22,8 +22,8 @@ return new class extends Migration
             $table->date('reciept_date');
             $table->float('cost');
             $table->string('bank_account_number');
-            $table->string('comment');
-            $table->string('image');
+            $table->string('comment')->nullable();
+            $table->string('image')->nullable();
             $table->timestamps();
         });
     }
