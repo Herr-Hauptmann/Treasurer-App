@@ -4,14 +4,18 @@ namespace Database\Seeders;
 
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
-use App\Models\Request;
+use App\Models\PaymentRequest;
 
-class RequestSeeder extends Seeder
+class PaymentRequestSeeder extends Seeder
 {
-
+    /**
+     * Run the database seeds.
+     *
+     * @return void
+     */
     public function run()
     {
-        Request::factory()
+        PaymentRequest::factory()
         ->count(20)
         ->create();
     }

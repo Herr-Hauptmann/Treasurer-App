@@ -6,9 +6,14 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
+    /**
+     * Run the migrations.
+     *
+     * @return void
+     */
     public function up()
     {
-        Schema::create('requests', function (Blueprint $table) {
+        Schema::create('payment_requests', function (Blueprint $table) {
             $table->id();
             $table->string('description');
             $table->string('project');
@@ -23,8 +28,13 @@ return new class extends Migration
         });
     }
 
+    /**
+     * Reverse the migrations.
+     *
+     * @return void
+     */
     public function down()
     {
-        Schema::dropIfExists('requests');
+        Schema::dropIfExists('payment_requests');
     }
 };
