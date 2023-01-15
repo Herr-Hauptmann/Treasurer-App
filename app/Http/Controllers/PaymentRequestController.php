@@ -46,7 +46,8 @@ class PaymentRequestController extends Controller
             //Kreiranje naziva slike
             $naziv = 'racun'.'_'.time().'.'.$ekstenzija;
             //Uplad slike
-            $path = $request->file('image')->storeAs('public/img/racuni/', $naziv);     
+            $path = $request->file('image')->storeAs('public/img/racuni/', $naziv);
+            $path = 'storage'.trim($path, "public");   
             //U bazi pamtimo samo ime
             $validiranZahtjev['image'] = $path;
         }
@@ -64,30 +65,47 @@ class PaymentRequestController extends Controller
      */
     public function show(PaymentRequest $paymentRequest)
     {
-        //
+        
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  \App\Models\PaymentRequest  $paymentRequest
-     * @return \Illuminate\Http\Response
-     */
-    public function edit(PaymentRequest $paymentRequest)
+    public function edit($id)
     {
-        //
+        $paymentRequest = PaymentRequest::findOrFail($id);
+        return view("payments.edit", compact('paymentRequest'));
     }
 
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Models\PaymentRequest  $paymentRequest
-     * @return \Illuminate\Http\Response
-     */
-    public function update(Request $request, PaymentRequest $paymentRequest)
+    public function update(Request $request, $id)
     {
-        //
+        $validiranZahtjev = $request->validate([
+            'description' => 'required|string|min:5|max:255',
+            'project' => 'required|string|min:5|max:255',
+            'person' => 'required|string|min:5|max:255',
+            'reciept_number' => 'required|string|min:2|max:255',
+            'reciept_date' => 'required|date|before_or_equal:'.now()->format('m/d/Y'),
+            'cost' => 'required|min:0',
+            'bank_account_number' => 'required|string|min:2|max:255',
+            'comment' => 'nullable|string|max:256',
+            'image' => 'nullable|image|max:5128',
+        ]);
+        $paymentRequest = PaymentRequest::findOrFail($id);
+        if ($request->image){
+            //Obrada slike
+            $ekstenzija = $request->file('image')->getClientOriginalExtension();
+            //Kreiranje naziva slike
+            $naziv = 'racun'.'_'.time().'.'.$ekstenzija;
+            //Uplad slike
+            $path = $request->file('image')->storeAs('public/img/racuni/', $naziv);
+            $path = 'storage'.trim($path, "public");   
+            //U bazi pamtimo samo ime
+            $validiranZahtjev['image'] = $path;
+
+               //Brisanje stare fotografije
+               $old_photo=$paymentRequest->image;
+               $old_photo = 'public'.trim($old_photo, "storage");
+               Storage::delete($old_photo);
+        }
+        $paymentRequest->update($validiranZahtjev);
+        return redirect(route('payment.index'))->with('jsAlert', 'Uspjesno ste izmjenili zahtjev '.$paymentRequest->description.'!');
     }
 
     /**
@@ -96,8 +114,13 @@ class PaymentRequestController extends Controller
      * @param  \App\Models\PaymentRequest  $paymentRequest
      * @return \Illuminate\Http\Response
      */
-    public function destroy(PaymentRequest $paymentRequest)
+    public function destroy($id)
     {
-        //
+        $paymentRequest = PaymentRequest::findOrFail($id);
+        $old_photo=$paymentRequest->image;
+        $old_photo = 'public'.trim($old_photo, "storage");
+        Storage::delete($old_photo);
+        PaymentRequest::destroy($id);
+        return redirect(route('payment.index'))->with('jsAlert', 'Uspjesno ste obrisali zahtjev!');
     }
 }
